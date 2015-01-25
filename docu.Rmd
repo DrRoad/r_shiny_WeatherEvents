@@ -30,7 +30,7 @@ Target area is the US. Goal is to provide indications regarding the harmfulness 
 
 ### Overview 
 
-The App with the Interactive Map and the Event Explorer allows to explore the weather 
+The App with the Interactive Map and the Event Explorer allows to explore the weather. 
 
 ### Input options 
 
