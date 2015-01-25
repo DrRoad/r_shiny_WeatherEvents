@@ -1,0 +1,151 @@
+---
+output: 
+  html_document:
+    fig_height: 4
+    fig_width: 4
+    highlight: tango
+    theme: cosmo
+  geometry: margin=.5in
+  fontsize: 9pt
+---
+```{r ,results = "asis", echo=FALSE}
+# inital loading of local path 
+# dataRaw<-read.csv(file="stormData.csv",head=TRUE ) 
+data<-dataRaw
+```
+ 
+Weather can be visious! How high the cost can be, this App intends to show you. 
+
+
+Target area is the US. Goal is to provide indications regarding the harmfulness of different event types. These information may become usefull when prioritizing counter measurements against weather disasters. As evaluation basis, data from the he National Weather Service Institution is utilized. 
+
+- GitHub repro
+- App URL
+
+- Credits to Data + Layout + Coursera + Data Science Guys
+
+
+
+## App discription
+
+### Overview 
+
+The App with the Interactive Map and the Event Explorer allows to explore the weather 
+
+### Input options 
+
+### Features
+
+#### Event Details
+
+#### Time Lapse
+
+#### Detail analysis
+
+#### Events top listing
+
+
+## Data
+
+
+### Data source 
+The National Weather Service Institution (NWSI) provided 2007 the data "Storm data Preparation". A detailed description of the used data can be found [here(PDF-file)](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf). 
+``` {r}
+# inital downloading und unzipping of raw data, used in this study
+#   url<-"https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2";
+#   download(url,destfile="stormData.csv.bz2", mode = "wb");
+#   system("bunzip2 stormData.csv.bz2");
+```
+
+Detailed information are available [here(docx-file)](http://www1.ncdc.noaa.gov/pub/data/swdi/stormevents/csvfiles/Storm-Data-Export-Format.docx). The following collumns are utilized in the app: 
+- EVTYPE: Event type
+- FATALITIES: Number of casualties for an event.
+- INJURIES: Number of injuries for an event.
+- LATITUDE and LATITUDE: Event coordinates.
+- BGN_DATE: Event date.
+- REMARKS: Event remarks.
+
+### Data cleaning 
+With over 500MB, the initial table is to heavy and includes more information, than utilized in the app. Hence, all unnessesary data shall be removed.
+
+#### Step 0: Loading required Libraries
+```{r}
+library(bitops);library(RCurl); library(downloader);   
+```
+
+#### Step 1: Extract relevant collumns
+``` {r}
+# collumns extration 
+colNames <- c("EVTYPE", "FATALITIES", "INJURIES", "LATITUDE", "LONGITUDE", "BGN_DATE", "REMARKS")
+data <- data[,colNames]
+````
+
+#### Step 2: Removing of Events without injuries or casualties
+```{r}
+data<-data[ data$FATALITIES != 0 | data$INJURIES != 0, ]
+```
+
+#### Step 3: Formating event coordinates and removing misplaced events
+````{r}
+# correct latitute and longitute format
+data$LATITUDE <- as.numeric(data$LATITUDE)/ 100; 
+data$LONGITUDE <- as.numeric(data$LONGITUDE)/-100
+
+# filter incorrect coordinates
+data <- data[ data$LATITUDE > 10, ]; 
+data <- data[ data$LATITUDE < 75, ]; 
+data <- data[ data$LONGITUDE < -50, ]
+````
+  
+#### Step 4: Formating and Generalizing of Event Labels
+```{r}
+# local function to change first letter of x into upper case
+simpleCap <- function(x) {
+     s <- strsplit(x, " ")[[1]]
+     paste(toupper(substring(s, 1,1)), substring(s, 2), sep="", collapse=" ")
+}
+
+# setting all labels to lower cases. 
+data$EVTYPE<-tolower(data$EVTYPE)
+  
+# setting first letter of labels to upper case
+data$EVTYPE <- sapply( data$EVTYPE , simpleCap)
+
+# editing event lables 
+data$EVTYPE[data$EVTYPE == "Marine High Wind"]<-"Marine Strong Wind"
+data$EVTYPE[data$EVTYPE == "Marine Tstm Wind"]<-"Marine Thunderstorm Wind"
+data$EVTYPE[data$EVTYPE == "Tstm Wind"]<-"Thunderstorm Wind"
+data$EVTYPE[grep("Waterspout", data$EVTYPE )]<-"Flood"
+data$EVTYPE[grep("ornado", data$EVTYPE )]<-"Tornado"
+```
+
+#### Step 5: Formating Event Year
+```{r}
+# local functions to extract the year 
+GetYear <- function(dateLong){ 
+   dateShort<-as.Date(dateLong, "%m/%d/%Y %X")
+   as.numeric(strtrim(as.character(dateShort),4)) 
+}
+
+# editing event year
+data$BGN_DATE<-sapply(data$BGN_DATE,GetYear)
+```
+
+
+#### Step 5: Adding overall effect for each event 
+```{r}
+# combined damage of event
+data$damage<-data$FATALITIES+data$INJURIES
+```
+
+#### Step 6: Relable collumns
+```{r}
+# new labels for data.frame
+colnames(data) <- c("etype", "fatalities", "injuries", "lat", "lng", "year", "remark", "damage")   
+```
+
+#### Step 7: Save event data locally
+```{r}
+# local helpful functions
+write.csv(data, file="stormData_filtered.csv")   
+```
