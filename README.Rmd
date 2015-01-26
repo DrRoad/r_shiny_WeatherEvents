@@ -1,14 +1,3 @@
----
-output: 
-  html_document:
-    fig_height: 4
-    fig_width: 4
-    highlight: tango
-    theme: cosmo
-  geometry: margin=.5in
-  fontsize: 9pt
----
-
 # Weather Explorer - Docu
 
 Weather can be visious! How high the cost can be, this App intends to show you. Target area is the US. Goal is to provide indications regarding the harmfulness of different event types. These information may become usefull when prioritizing counter measurements against weather disasters. As evaluation basis, data from the he National Weather Service Institution is utilized. 
