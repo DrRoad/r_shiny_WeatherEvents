@@ -10,6 +10,8 @@ Weather can be visious! How high the cost can be, this App intends to show you. 
 
 > **Data** US National Weather Service [here(PDF-file)](http://www.weather.gov/)
 
+The original data can be downloaded [here](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2).
+
 > **Layout** based on [SuperZip App](https://github.com/jcheng5/superzip) by [Joe Cheng](https://github.com/jcheng5)
 
 ## App Features
